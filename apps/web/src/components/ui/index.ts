@@ -1,3 +1,4 @@
+export { Button } from "./button";
 export { Navbar } from "./navbar";
 export { Hero } from "./hero";
 export { FeatureGrid } from "./feature-grid";

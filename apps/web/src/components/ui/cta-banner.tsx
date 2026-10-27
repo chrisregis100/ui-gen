@@ -1,90 +1,63 @@
-import { cn } from "@/lib/utils"
+"use client"
 
-const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-
-const costs = [
-  {
-    title: "The tool",
-    body: "MIT license. No fee for the CLI or the MCP server in this repository.",
-  },
-  {
-    title: "The model",
-    body: "Generate calls are billed by your provider. The default is xAI, model grok-4.7, at https://api.x.ai/v1.",
-  },
-  {
-    title: "The files",
-    body: "A .tsx component and an index.ts export land in your components directory. Nothing is hosted for you.",
-  },
-] as const
-
-const commands = `pnpm install
-pnpm build
-pnpm ui-gen init
-pnpm ui-gen generate "accessible search input"`
+import { useId } from "react"
 
 export interface CtaBannerProps {
+  supportingText?: string
+  onPrimaryClick?: () => void
+  onSecondaryClick?: () => void
   className?: string
 }
 
-export function CtaBanner({ className }: CtaBannerProps) {
+export function CtaBanner({
+  supportingText = "Generate accessible React components from a short brief, style them with Tailwind, and ship the interface without a long design cycle.",
+  onPrimaryClick,
+  onSecondaryClick,
+  className = "",
+}: CtaBannerProps) {
+  const titleId = useId()
+  const descriptionId = useId()
+
   return (
     <section
-      id="open-source"
-      aria-labelledby="open-source-title"
-      className={cn("scroll-mt-20 border-t border-border", className)}
+      aria-labelledby={titleId}
+      aria-describedby={descriptionId}
+      className={`w-full border-y border-slate-800 bg-slate-950 text-slate-50 ${className}`.trim()}
     >
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start lg:px-8">
-        <div>
-          <p className="font-mono text-sm text-muted-foreground">Open source</p>
-          <h2
-            id="open-source-title"
-            className="mt-3 font-display text-4xl tracking-tight text-balance sm:text-5xl"
-          >
-            Your repo. Your key.
-          </h2>
-          <p className="mt-4 max-w-xl text-base leading-7 text-muted-foreground">
-            ui-gen is maintained by Régis KIKI. Run it from a checkout of this tree. There is no
-            hosted component registry and no ui-gen subscription in this release.
+      <div className="mx-auto flex w-full max-w-6xl flex-col items-start gap-8 px-4 py-10 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:gap-12 lg:px-8 lg:py-14">
+        <div className="max-w-2xl">
+          <p className="text-sm font-semibold uppercase tracking-wider text-emerald-300">
+            Open source ui-gen
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <a
-              href="#how-it-works"
-              className={cn(
-                "inline-flex h-11 items-center justify-center rounded-full bg-accent px-5 text-sm font-medium text-accent-foreground hover:bg-accent/90",
-                focusRing,
-              )}
-            >
-              Read the commands
-            </a>
-            <a
-              href="#demo"
-              className={cn(
-                "inline-flex h-11 items-center justify-center rounded-full border border-border bg-card px-5 text-sm font-medium hover:bg-muted",
-                focusRing,
-              )}
-            >
-              Look at the output
-            </a>
-          </div>
-          <pre
-            tabIndex={0}
-            aria-label="Commands to build ui-gen and generate a component"
-            className="mt-8 overflow-x-auto whitespace-pre-wrap rounded-2xl border border-border bg-card p-4 font-mono text-sm leading-7 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          <h2
+            id={titleId}
+            className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl lg:text-4xl"
           >
-            <code>{commands}</code>
-          </pre>
+            Ship UI faster with open source ui-gen
+          </h2>
+          <p
+            id={descriptionId}
+            className="mt-3 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg"
+          >
+            {supportingText}
+          </p>
         </div>
-        <ul className="grid gap-3">
-          {costs.map((cost) => (
-            <li key={cost.title}>
-              <article className="h-full rounded-2xl border border-border bg-card p-5">
-                <h3 className="text-base font-medium">{cost.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">{cost.body}</p>
-              </article>
-            </li>
-          ))}
-        </ul>
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+          <a
+            href="#how-it-works"
+            onClick={onPrimaryClick}
+            className="inline-flex items-center justify-center rounded-lg bg-emerald-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+          >
+            Get started
+          </a>
+          <a
+            href="#demo"
+            onClick={onSecondaryClick}
+            className="inline-flex items-center justify-center rounded-lg border border-slate-500 bg-transparent px-5 py-3 text-sm font-semibold text-white transition hover:border-slate-300 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+          >
+            Read docs
+          </a>
+        </div>
       </div>
     </section>
   )

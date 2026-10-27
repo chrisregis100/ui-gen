@@ -1,137 +1,148 @@
 "use client"
 
-import { Menu, Moon, Sun, X } from "lucide-react"
-import { useEffect, useState } from "react"
-import { cn } from "@/lib/utils"
-
-const links = [
-  { href: "#features", label: "Features" },
-  { href: "#how-it-works", label: "How it works" },
-  { href: "#demo", label: "Demo" },
-  { href: "#open-source", label: "Open source" },
-] as const
-
-const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+import { useEffect, useId, useRef, useState } from "react"
 
 export interface NavbarProps {
-  brand?: string
-  version?: string
+  logoHref?: string
+  ctaHref?: string
+  links?: { label: string; href: string }[]
+  className?: string
 }
 
-export function Navbar({ brand = "ui-gen", version = "v0.1" }: NavbarProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isDark, setIsDark] = useState(false)
+const defaultLinks: { label: string; href: string }[] = [
+  { label: "Features", href: "#features" },
+  { label: "How it works", href: "#how-it-works" },
+  { label: "Docs", href: "#docs" },
+]
+
+export function Navbar({
+  logoHref = "/",
+  ctaHref = "#get-started",
+  links = defaultLinks,
+  className = "",
+}: NavbarProps) {
+  const [open, setOpen] = useState(false)
+  const menuId = useId()
+  const toggleRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    setIsDark(document.documentElement.classList.contains("dark"))
-  }, [])
-
-  useEffect(() => {
-    if (!isMenuOpen) return
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setIsMenuOpen(false)
+    if (!open) {
+      return
     }
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [isMenuOpen])
-
-  const handleToggleMenu = () => setIsMenuOpen((open) => !open)
-
-  const handleCloseMenu = () => setIsMenuOpen(false)
-
-  const handleToggleTheme = () => {
-    const nextIsDark = !document.documentElement.classList.contains("dark")
-    document.documentElement.classList.toggle("dark", nextIsDark)
-    localStorage.setItem("theme", nextIsDark ? "dark" : "light")
-    setIsDark(nextIsDark)
-  }
-
-  const themeLabel = isDark ? "Switch to light theme" : "Switch to dark theme"
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false)
+        toggleRef.current?.focus()
+      }
+    }
+    document.addEventListener("keydown", onKeyDown)
+    return () => document.removeEventListener("keydown", onKeyDown)
+  }, [open])
 
   return (
-    <header id="top" className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+    <header
+      className={`sticky top-0 z-50 border-b border-zinc-200/80 bg-white/85 backdrop-blur-md dark:border-zinc-800/80 dark:bg-zinc-950/85 ${className}`}
+    >
+      <nav
+        aria-label="Primary"
+        className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8"
+      >
         <a
-          href="#top"
-          className={cn("inline-flex items-baseline gap-2 rounded-full px-1", focusRing)}
-          aria-label={`${brand} home`}
+          href={logoHref}
+          className="inline-flex items-center rounded-md text-lg font-semibold tracking-tight text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 dark:text-white dark:focus-visible:ring-offset-zinc-950"
         >
-          <span className="font-display text-2xl tracking-tight">{brand}</span>
-          <span className="hidden font-mono text-xs text-muted-foreground sm:inline">{version}</span>
+          <span
+            aria-hidden="true"
+            className="mr-2 h-2.5 w-2.5 rounded-sm bg-violet-600 dark:bg-violet-400"
+          />
+          ui-gen
         </a>
-        <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
+        <div className="hidden items-center gap-1 md:flex">
           {links.map((link) => (
             <a
-              key={link.href}
+              key={link.label}
               href={link.href}
-              className={cn(
-                "rounded-full px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground",
-                focusRing,
-              )}
+              className="rounded-md px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white dark:focus-visible:ring-offset-zinc-950"
             >
               {link.label}
             </a>
           ))}
-        </nav>
+        </div>
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className={cn(
-              "inline-flex size-11 items-center justify-center rounded-full border border-border bg-card text-foreground hover:bg-muted",
-              focusRing,
-            )}
-            aria-pressed={isDark}
-            aria-label={themeLabel}
-            onClick={handleToggleTheme}
+          <a
+            href={ctaHref}
+            className="hidden rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-violet-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 md:inline-flex dark:focus-visible:ring-offset-zinc-950"
           >
-            {isDark ? (
-              <Sun aria-hidden="true" className="size-4" />
-            ) : (
-              <Moon aria-hidden="true" className="size-4" />
-            )}
-          </button>
+            Get started
+          </a>
           <button
+            ref={toggleRef}
             type="button"
-            className={cn(
-              "inline-flex size-11 items-center justify-center rounded-full border border-border bg-card text-foreground hover:bg-muted md:hidden",
-              focusRing,
-            )}
-            aria-expanded={isMenuOpen}
-            aria-controls="site-menu"
-            onClick={handleToggleMenu}
+            className="inline-flex items-center justify-center rounded-md p-2 text-zinc-700 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 md:hidden dark:text-zinc-200 dark:hover:bg-zinc-800 dark:focus-visible:ring-offset-zinc-950"
+            aria-expanded={open}
+            aria-controls={menuId}
+            aria-label={open ? "Close menu" : "Open menu"}
+            onClick={() => setOpen((current) => !current)}
           >
-            {isMenuOpen ? (
-              <X aria-hidden="true" className="size-4" />
+            {open ? (
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                aria-hidden="true"
+                className="h-5 w-5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 6l12 12M18 6L6 18"
+                />
+              </svg>
             ) : (
-              <Menu aria-hidden="true" className="size-4" />
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                aria-hidden="true"
+                className="h-5 w-5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 7h16M4 12h16M4 17h16"
+                />
+              </svg>
             )}
-            <span className="sr-only">{isMenuOpen ? "Close menu" : "Open menu"}</span>
           </button>
         </div>
-      </div>
-      <nav
-        id="site-menu"
-        aria-label="Mobile"
-        className={cn("border-t border-border px-4 py-3 md:hidden", !isMenuOpen && "hidden")}
-      >
-        <ul className="flex flex-col">
-          {links.map((link) => (
-            <li key={link.href}>
-              <a
-                href={link.href}
-                className={cn(
-                  "flex h-11 items-center rounded-lg px-3 text-base hover:bg-muted",
-                  focusRing,
-                )}
-                onClick={handleCloseMenu}
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
       </nav>
+      <div
+        id={menuId}
+        hidden={!open}
+        className="border-t border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950 md:hidden"
+      >
+        <div className="mx-auto flex max-w-6xl flex-col gap-1">
+          {links.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              onClick={() => setOpen(false)}
+              className="rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 dark:text-zinc-200 dark:hover:bg-zinc-800"
+            >
+              {link.label}
+            </a>
+          ))}
+          <a
+            href={ctaHref}
+            onClick={() => setOpen(false)}
+            className="mt-2 inline-flex items-center justify-center rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-violet-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+          >
+            Get started
+          </a>
+        </div>
+      </div>
     </header>
   )
 }

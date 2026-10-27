@@ -5,7 +5,7 @@ import { useEffect, useState, type KeyboardEvent } from "react"
 import { cn } from "@/lib/utils"
 
 const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-zinc-950"
 
 const pricingCardSource = `export interface PricingCardProps {
   tiers: Array<{
@@ -172,23 +172,26 @@ export function CodePreview({ className }: CodePreviewProps) {
     <section
       id="demo"
       aria-labelledby="demo-title"
-      className={cn("scroll-mt-20 border-t border-border", className)}
+      className={cn("scroll-mt-20 bg-white text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50", className)}
     >
-      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
         <div className="max-w-2xl">
-          <p className="font-mono text-sm text-muted-foreground">Demo</p>
-          <h2 id="demo-title" className="mt-3 font-display text-4xl tracking-tight text-balance sm:text-5xl">
+          <p className="text-sm font-semibold uppercase tracking-widest text-violet-700 dark:text-violet-300">
+            Demo
+          </p>
+          <h2 id="demo-title" className="mt-3 text-3xl font-semibold tracking-tight text-zinc-950 sm:text-4xl dark:text-white">
             The file for that prompt.
           </h2>
-          <p className="mt-4 text-base leading-7 text-muted-foreground">
+          <p className="mt-4 text-base leading-7 text-zinc-600 dark:text-zinc-300">
             Sample output for a pricing card. These prices are part of the example component. They
-            are not what ui-gen charges. The tool’s own terms are in the open-source section.
+            are not what ui-gen charges. The tool is MIT, and generate calls are billed by your
+            model provider.
           </p>
         </div>
         <div className="mt-12 space-y-6">
           <PricingPreview tiers={sampleTiers} />
-          <div className="overflow-hidden rounded-2xl border border-border bg-card">
-            <div className="flex flex-col gap-3 border-b border-border px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="flex flex-col gap-3 border-b border-zinc-200 px-3 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-zinc-800">
               <div role="tablist" aria-label="Generated file views" className="flex flex-wrap gap-1">
                 {panels.map((panel, index) => {
                   const isSelected = index === activeIndex
@@ -202,8 +205,10 @@ export function CodePreview({ className }: CodePreviewProps) {
                       aria-controls="code-panel"
                       tabIndex={isSelected ? 0 : -1}
                       className={cn(
-                        "h-9 rounded-full px-3 text-sm",
-                        isSelected ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted",
+                        "h-9 rounded-lg px-3 text-sm font-medium",
+                        isSelected
+                          ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950"
+                          : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800",
                         focusRing,
                       )}
                       onClick={() => handleSelectTab(index)}
@@ -217,7 +222,7 @@ export function CodePreview({ className }: CodePreviewProps) {
               <button
                 type="button"
                 className={cn(
-                  "inline-flex h-9 items-center justify-center gap-2 self-start rounded-full border border-border px-3 text-sm hover:bg-muted",
+                  "inline-flex h-9 items-center justify-center gap-2 self-start rounded-lg border border-zinc-200 px-3 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800",
                   focusRing,
                 )}
                 onClick={handleCopy}
@@ -232,17 +237,17 @@ export function CodePreview({ className }: CodePreviewProps) {
             </div>
             {active ? (
               <div role="tabpanel" id="code-panel" aria-labelledby={`code-tab-${activeIndex}`}>
-                <p className="border-b border-border px-4 py-2 font-mono text-xs text-muted-foreground">
+                <p className="border-b border-zinc-200 px-4 py-2 font-mono text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
                   {active.path}
                 </p>
                 <pre
                   tabIndex={0}
                   aria-label={`${active.label} contents`}
-                  className="max-h-[32rem] overflow-auto p-4 font-mono text-[13px] leading-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                  className="max-h-[32rem] overflow-auto bg-zinc-950 p-4 font-mono text-[13px] leading-6 text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-violet-400"
                 >
                   <code>{active.code}</code>
                 </pre>
-                <p className="border-t border-border px-4 py-3 text-sm leading-6 text-muted-foreground">
+                <p className="border-t border-zinc-200 px-4 py-3 text-sm leading-6 text-zinc-600 dark:border-zinc-800 dark:text-zinc-300">
                   {active.note}
                 </p>
               </div>
@@ -260,8 +265,8 @@ interface PricingPreviewProps {
 
 function PricingPreview({ tiers }: PricingPreviewProps) {
   return (
-    <div className="rounded-2xl border border-border bg-muted p-3 sm:p-4">
-      <p className="px-1 pb-3 font-mono text-xs text-muted-foreground">Example render</p>
+    <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-3 sm:p-4 dark:border-zinc-800 dark:bg-zinc-900">
+      <p className="px-1 pb-3 font-mono text-xs text-zinc-500 dark:text-zinc-400">Example render</p>
       <div className="grid gap-4 md:grid-cols-3">
         {tiers.map((tier) => (
           <article

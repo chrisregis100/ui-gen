@@ -1,86 +1,120 @@
-import { Braces, FileCode2, FolderInput, KeyRound, PencilLine, Waypoints } from "lucide-react"
-import type { LucideIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
+"use client"
 
-interface Feature {
-  title: string
-  body: string
-  icon: LucideIcon
-}
-
-const features: Feature[] = [
-  {
-    title: "One file, named export",
-    body: "A TypeScript function component, a props interface, and Tailwind classes. No default export and no CSS module.",
-    icon: FileCode2,
-  },
-  {
-    title: "Copied into the project",
-    body: "generate writes ComponentName.tsx and adds a line to index.ts. ui-gen add copies a local file that already has a named export.",
-    icon: FolderInput,
-  },
-  {
-    title: "CLI and MCP, one pipeline",
-    body: "The ui-gen binary and the ui-gen-mcp server both call @ui-gen/core, so an agent and a terminal write the same kind of file.",
-    icon: Waypoints,
-  },
-  {
-    title: "Your paths",
-    body: "init reads a Next.js, Vite, or React app, including components.json and tsconfig aliases. The printed import uses that alias.",
-    icon: Braces,
-  },
-  {
-    title: "OpenAI-compatible",
-    body: "The default provider is xAI: grok-4.7 at https://api.x.ai/v1. OPENAI_API_KEY works with UI_GEN_BASE_URL for another endpoint.",
-    icon: KeyRound,
-  },
-  {
-    title: "Yours to edit",
-    body: "Review the file before you commit. ui-gen does not install Tailwind, React, or icon packages for you.",
-    icon: PencilLine,
-  },
-]
+import { useId, type ReactNode } from 'react';
 
 export interface FeatureGridProps {
-  className?: string
+  heading?: string;
+  subheading?: string;
+  className?: string;
 }
 
-export function FeatureGrid({ className }: FeatureGridProps) {
+const features: { title: string; description: string; icon: ReactNode }[] = [
+  {
+    title: 'Prompt to production TSX',
+    description:
+      'Describe the interface you need and get a typed React component, props interface, and Tailwind layout ready to land in a production codebase.',
+    icon: (
+      <svg
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        strokeWidth='1.75'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        aria-hidden='true'
+        className='h-6 w-6'
+      >
+        <path d='M8 8 4.5 12 8 16' />
+        <path d='m16 8 3.5 4-3.5 4' />
+        <path d='m13 6-2 12' />
+      </svg>
+    ),
+  },
+  {
+    title: 'Own the source shadcn-style copy into project',
+    description:
+      'Generated files are copied into your repository, so you can read, edit, and version the source the same way you own shadcn components.',
+    icon: (
+      <svg
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        strokeWidth='1.75'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        aria-hidden='true'
+        className='h-6 w-6'
+      >
+        <path d='M4 7.5A1.5 1.5 0 0 1 5.5 6H9l2 2h7.5A1.5 1.5 0 0 1 20 9.5V18a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18z' />
+        <path d='M12 11v6' />
+        <path d='m9.5 14.5 2.5 2.5 2.5-2.5' />
+      </svg>
+    ),
+  },
+  {
+    title: 'CLI and MCP for coding agents',
+    description:
+      'Generate and refine components from the terminal or over MCP so coding agents can work inside your repository with the same ui-gen workflow.',
+    icon: (
+      <svg
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        strokeWidth='1.75'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        aria-hidden='true'
+        className='h-6 w-6'
+      >
+        <rect x='3' y='4' width='18' height='14' rx='2' />
+        <path d='m7 9 2.5 2L7 13' />
+        <path d='M12 13h5' />
+        <path d='M8 21h8' />
+        <path d='M12 18v3' />
+      </svg>
+    ),
+  },
+];
+
+export function FeatureGrid({
+  heading = 'From prompt to components you own',
+  subheading = 'ui-gen writes production TSX, copies shadcn-style source into your project, and stays available to coding agents through the CLI and MCP.',
+  className,
+}: FeatureGridProps) {
+  const headingId = useId();
+
   return (
     <section
-      id="features"
-      aria-labelledby="features-title"
-      className={cn("scroll-mt-20 border-t border-border", className)}
+      aria-labelledby={headingId}
+      className={['bg-zinc-50 text-zinc-950', className].filter(Boolean).join(' ')}
     >
-      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-        <div className="max-w-2xl">
-          <p className="font-mono text-sm text-muted-foreground">Features</p>
+      <div className='mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8'>
+        <header className='max-w-2xl'>
+          <p className='text-sm font-semibold tracking-wide text-zinc-500'>ui-gen</p>
           <h2
-            id="features-title"
-            className="mt-3 font-display text-4xl tracking-tight text-balance sm:text-5xl"
+            id={headingId}
+            className='mt-2 text-3xl font-semibold tracking-tight text-zinc-950 sm:text-4xl'
           >
-            Written like a component you would keep.
+            {heading}
           </h2>
-          <p className="mt-4 text-base leading-7 text-muted-foreground">
-            The generator does not ship a component library. It writes source into the directory
-            your project already uses.
-          </p>
-        </div>
-        <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature) => {
-            const Icon = feature.icon
-            return (
-              <li key={feature.title}>
-                <article className="flex h-full flex-col rounded-2xl border border-border bg-card p-5">
-                  <Icon aria-hidden="true" className="size-5 text-accent" />
-                  <h3 className="mt-4 text-base font-medium">{feature.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{feature.body}</p>
-                </article>
-              </li>
-            )
-          })}
+          <p className='mt-4 text-base leading-7 text-zinc-600'>{subheading}</p>
+        </header>
+        <ul className='mt-12 grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3'>
+          {features.map((feature) => (
+            <li key={feature.title} className='min-w-0'>
+              <article className='flex h-full flex-col rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm'>
+                <div className='mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-950 text-white'>
+                  {feature.icon}
+                </div>
+                <h3 className='text-lg font-semibold tracking-tight text-zinc-950'>
+                  {feature.title}
+                </h3>
+                <p className='mt-2 text-sm leading-6 text-zinc-600'>{feature.description}</p>
+              </article>
+            </li>
+          ))}
         </ul>
       </div>
     </section>
-  )
+  );
 }

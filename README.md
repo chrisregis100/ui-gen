@@ -211,7 +211,7 @@ The dev server binds `0.0.0.0` and port `${PORT:-3000}`. Open `http://localhost:
 
 `pnpm build` compiles the packages and the landing. To build only the site, run `pnpm --filter web build`.
 
-The sections in git were written as source. To regenerate them with the CLI once a model key is available:
+Navbar, Hero, FeatureGrid, HowItWorks, CtaBanner, Footer, and Button in that folder were generated with `ui-gen` against xAI. CodePreview is still local source because that generate call timed out. To regenerate the sections once a model key is available:
 
 ```bash
 pnpm build

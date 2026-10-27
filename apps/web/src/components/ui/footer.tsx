@@ -1,47 +1,56 @@
-import { cn } from "@/lib/utils"
-
-const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-
-const pageLinks = [
-  { href: "#features", label: "Features" },
-  { href: "#how-it-works", label: "How it works" },
-  { href: "#demo", label: "Demo" },
-  { href: "#open-source", label: "Open source" },
-] as const
-
-const packages = [
-  { name: "@ui-gen/cli", detail: "binary ui-gen" },
-  { name: "@ui-gen/core", detail: "generation and file writes" },
-  { name: "@ui-gen/mcp", detail: "binary ui-gen-mcp" },
-] as const
-
 export interface FooterProps {
-  className?: string
+  className?: string;
+  productName?: string;
+  blurb?: string;
+  docsHref?: string;
+  cliHref?: string;
+  mcpHref?: string;
+  licenseHref?: string;
+  year?: number;
+  author?: string;
 }
 
-export function Footer({ className }: FooterProps) {
+export function Footer({
+  className,
+  productName = "ui-gen",
+  blurb = "AI UI component generator",
+  docsHref = "/docs",
+  cliHref = "/cli",
+  mcpHref = "/mcp",
+  licenseHref = "/license",
+  year = 2026,
+  author = "Régis KIKI",
+}: FooterProps) {
+  const links = [
+    { label: "Docs", href: docsHref },
+    { label: "CLI", href: cliHref },
+    { label: "MCP", href: mcpHref },
+    { label: "License", href: licenseHref },
+  ];
+
   return (
-    <footer className={cn("border-t border-border", className)}>
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 sm:py-16 md:grid-cols-3 lg:px-8">
-        <div>
-          <p className="font-display text-2xl tracking-tight">ui-gen</p>
-          <p className="mt-3 max-w-xs text-sm leading-6 text-muted-foreground">
-            React, TypeScript, and Tailwind components, written into your project from a prompt.
+    <footer
+      className={[
+        "border-t border-zinc-200 bg-zinc-50 text-zinc-900",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6 lg:flex-row lg:items-start lg:justify-between lg:gap-10 lg:px-8">
+        <div className="max-w-sm">
+          <p className="text-base font-semibold tracking-tight text-zinc-950">
+            {productName}
           </p>
-          <p className="mt-4 text-sm text-muted-foreground">© 2026 Régis KIKI. MIT License.</p>
+          <p className="mt-1 text-sm leading-6 text-zinc-600">{blurb}</p>
         </div>
         <nav aria-label="Footer">
-          <p className="text-sm font-medium">On this page</p>
-          <ul className="mt-3 space-y-2">
-            {pageLinks.map((link) => (
-              <li key={link.href}>
+          <ul className="flex flex-wrap gap-x-6 gap-y-2">
+            {links.map((link) => (
+              <li key={link.label}>
                 <a
                   href={link.href}
-                  className={cn(
-                    "rounded-md text-sm text-muted-foreground hover:text-foreground",
-                    focusRing,
-                  )}
+                  className="rounded-sm text-sm font-medium text-zinc-700 underline-offset-4 hover:text-zinc-950 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-50"
                 >
                   {link.label}
                 </a>
@@ -49,30 +58,12 @@ export function Footer({ className }: FooterProps) {
             ))}
           </ul>
         </nav>
-        <div>
-          <p className="text-sm font-medium">Packages in this repo</p>
-          <ul className="mt-3 space-y-3">
-            {packages.map((pkg) => (
-              <li key={pkg.name}>
-                <p className="font-mono text-sm">{pkg.name}</p>
-                <p className="text-sm text-muted-foreground">{pkg.detail}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
-      <div className="border-t border-border">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <p>
-            This page imports its sections from{" "}
-            <span className="font-mono text-foreground">src/components/ui</span>. A public GitHub
-            remote is not attached to this tree yet.
-          </p>
-          <a href="#top" className={cn("w-fit rounded-md hover:text-foreground", focusRing)}>
-            Back to top
-          </a>
-        </div>
+      <div className="border-t border-zinc-200">
+        <p className="mx-auto w-full max-w-6xl px-4 py-4 text-xs text-zinc-500 sm:px-6 lg:px-8">
+          © {year} {author}
+        </p>
       </div>
     </footer>
-  )
+  );
 }

@@ -1,115 +1,86 @@
-import { cn } from "@/lib/utils"
-
-const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-
-const heroSnippet = `export interface PricingCardProps {
-  name: string
-  price: string
-  summary: string
-}
-
-export function PricingCard({ name, price, summary }: PricingCardProps) {
-  return (
-    <article aria-labelledby="plan-name">
-      <h2 id="plan-name">{name}</h2>
-      <p>{price}</p>
-      <p>{summary}</p>
-    </article>
-  )
-}`
-
-const facts = [
-  { term: "Export", detail: "Named function" },
-  { term: "Import", detail: "Your path alias" },
-  { term: "License", detail: "MIT" },
-] as const
+"use client"
 
 export interface HeroProps {
-  className?: string
+  installHref?: string;
+  seeHowHref?: string;
+  onInstall?: () => void;
+  onSeeHow?: () => void;
 }
 
-export function Hero({ className }: HeroProps) {
+export function Hero({
+  installHref = "#install",
+  seeHowHref = "#how-it-works",
+  onInstall,
+  onSeeHow,
+}: HeroProps) {
+  const sampleSource = [
+    "export function PricingCard() {",
+    "  return (",
+    '    <article className="rounded-2xl border p-6">',
+    "      <h2>Pro</h2>",
+    "      <p>Ship faster with generated UI.</p>",
+    "    </article>",
+    "  )",
+    "}",
+  ].join("\n");
+
   return (
-    <section aria-labelledby="hero-title" className={cn("relative overflow-hidden", className)}>
+    <section
+      aria-labelledby="ui-gen-hero-heading"
+      className="relative overflow-hidden bg-slate-950 text-white"
+    >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:4.5rem_4.5rem] opacity-70 [mask-image:radial-gradient(ellipse_at_top,black,transparent_72%)]"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-600/25 via-slate-950 to-fuchsia-600/15"
       />
-      <div className="relative mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center lg:px-8 lg:py-28">
-        <div className="min-w-0">
-          <p className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 font-mono text-sm text-muted-foreground">
-            <span aria-hidden="true" className="size-1.5 rounded-full bg-accent" />
-            CLI and MCP · one pipeline
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-indigo-500/20 blur-3xl"
+      />
+      <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-28">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-300">
+            ui-gen
           </p>
           <h1
-            id="hero-title"
-            className="mt-6 max-w-xl font-display text-5xl leading-[1.02] tracking-tight text-balance sm:text-6xl lg:text-7xl"
+            id="ui-gen-hero-heading"
+            className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl"
           >
-            A prompt goes in.
-            <span className="mt-1 block italic text-accent">A file stays.</span>
+            Generate React UI components with AI
           </h1>
-          <p className="mt-6 max-w-xl text-lg leading-8 text-pretty text-muted-foreground">
-            ui-gen writes a React, TypeScript, and Tailwind component into your repository. The
-            source is yours, the same way the shadcn CLI copies a file instead of shipping a locked
-            package.
+          <p className="mt-6 max-w-xl text-base leading-7 text-slate-300 sm:text-lg">
+            Describe a component. Get TypeScript Tailwind source copied into your project via CLI or MCP.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <a
-              href="#how-it-works"
-              className={cn(
-                "inline-flex h-11 items-center justify-center rounded-full bg-accent px-5 text-sm font-medium text-accent-foreground hover:bg-accent/90",
-                focusRing,
-              )}
+              href={installHref}
+              onClick={onInstall}
+              className="inline-flex items-center justify-center rounded-lg bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
             >
-              How it works
+              Install the CLI
             </a>
             <a
-              href="#demo"
-              className={cn(
-                "inline-flex h-11 items-center justify-center rounded-full border border-border bg-card px-5 text-sm font-medium hover:bg-muted",
-                focusRing,
-              )}
+              href={seeHowHref}
+              onClick={onSeeHow}
+              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
             >
-              See a generated file
+              See how it works
             </a>
           </div>
-          <p className="mt-6 max-w-xl text-sm leading-6 text-muted-foreground">
-            The sections on this page live in{" "}
-            <span className="font-mono text-foreground">src/components/ui</span>.
-          </p>
-          <dl className="mt-8 grid gap-4 border-t border-border pt-6 sm:grid-cols-3">
-            {facts.map((fact) => (
-              <div key={fact.term}>
-                <dt className="font-mono text-xs text-muted-foreground">{fact.term}</dt>
-                <dd className="mt-1 text-sm font-medium">{fact.detail}</dd>
-              </div>
-            ))}
-          </dl>
         </div>
-        <figure className="min-w-0 overflow-hidden rounded-2xl border border-border bg-card shadow-[0_30px_80px_-48px_rgba(20,22,14,0.55)]">
-          <figcaption className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 font-mono text-xs text-muted-foreground">
-            <span>src/components/ui/pricing-card.tsx</span>
-            <span className="shrink-0">named export</span>
-          </figcaption>
-          <pre
-            tabIndex={0}
-            aria-label="Excerpt of a generated pricing card"
-            className="overflow-x-auto p-4 font-mono text-[13px] leading-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-          >
-            <code>{heroSnippet}</code>
-          </pre>
-          <div className="space-y-2 border-t border-border bg-muted px-4 py-3 font-mono text-xs leading-5">
-            <p>
-              <span className="text-accent">$</span> pnpm ui-gen generate &quot;pricing card with
-              three tiers&quot;
-            </p>
-            <p className="text-foreground">
-              import {"{ PricingCard }"} from &quot;@/components/ui/pricing-card&quot;;
-            </p>
+        <aside
+          aria-label="Generated TypeScript Tailwind source"
+          className="rounded-2xl border border-white/10 bg-slate-900/80 p-4 shadow-2xl shadow-indigo-950/40 backdrop-blur sm:p-6"
+        >
+          <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
+            <p className="font-mono text-xs text-slate-400">PricingCard.tsx</p>
+            <p className="text-xs font-medium text-emerald-300">Copied via CLI</p>
           </div>
-        </figure>
+          <pre className="mt-4 overflow-x-auto font-mono text-xs leading-6 text-indigo-100 sm:text-sm">
+            <code>{sampleSource}</code>
+          </pre>
+        </aside>
       </div>
     </section>
-  )
+  );
 }
