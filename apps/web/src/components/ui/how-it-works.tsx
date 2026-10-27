@@ -1,105 +1,98 @@
-"use client"
-
-import { useId } from "react";
+import { cn } from "@/lib/utils"
 
 export interface HowItWorksProps {
-  id?: string;
-  className?: string;
-  headingId?: string;
-  title?: string;
-  description?: string;
+  id?: string
+  className?: string
 }
 
-const steps = [
+const steps: { index: string; title: string; body: string; code: string }[] = [
   {
-    label: "01",
-    title: "Init writes ui-gen.json",
-    body: "Run init in the project you want to generate into. ui-gen writes ui-gen.json, the manifest that records output paths and how new components are exported.",
-    note: "Writes ui-gen.json",
-    code: "ui-gen init",
+    index: "01",
+    title: "Init the project",
+    body: "ui-gen init detects Next.js, Vite, or React, reads components.json and tsconfig aliases, and writes ui-gen.json.",
+    code: "pnpm dlx ui-gen init",
   },
   {
-    label: "02",
+    index: "02",
+    title: "Set a key",
+    body: "XAI_API_KEY or GROK_API_KEY, or OPENAI_API_KEY with UI_GEN_BASE_URL. A missing key exits before any network call.",
+    code: "export XAI_API_KEY=…",
+  },
+  {
+    index: "03",
     title: "Generate from a prompt",
-    body: "Describe the interface you need in a prompt. ui-gen reads ui-gen.json and generates the component from that brief.",
-    note: "Prompt in",
-    code: "ui-gen generate",
+    body: "The model returns one component with a named export. ui-gen writes the .tsx file and updates index.ts.",
+    code: 'ui-gen generate "pricing card"',
   },
   {
-    label: "03",
-    title: "Component lands as tsx with index export",
-    body: "The finished component lands as a .tsx file. ui-gen adds a named export to the index so it can be imported without a deep path.",
-    note: "tsx plus index export",
-    code: "ComponentName.tsx\nexport { ComponentName } from './ComponentName';",
+    index: "04",
+    title: "Import what you own",
+    body: "The file is in your tree. Change it, commit it, or delete it. There is no registry to stay in sync with.",
+    code: 'import { PricingCard } from\n"@/components/ui/pricing-card"',
   },
-] as const;
+]
 
-export function HowItWorks({
-  id,
-  className,
-  headingId,
-  title = "How it works",
-  description = "Three steps: init writes ui-gen.json, generate from a prompt, and the component lands as tsx with an index export.",
-}: HowItWorksProps) {
-  const autoHeadingId = useId();
-  const labelId = headingId ?? autoHeadingId;
+const tools: { name: string; kind: string }[] = [
+  { name: "init_project", kind: "write" },
+  { name: "generate_component", kind: "write" },
+  { name: "add_component", kind: "write" },
+  { name: "list_components", kind: "read" },
+  { name: "get_project_config", kind: "read" },
+]
 
+export function HowItWorks({ id = "how-it-works", className }: HowItWorksProps) {
   return (
-    <section
-      id={id}
-      aria-labelledby={labelId}
-      className={[
-        "border-y border-slate-200 bg-slate-50 text-slate-900",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    >
-      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
-        <div className="max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-widest text-emerald-700">
-            ui-gen
-          </p>
-          <h2
-            id={labelId}
-            className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl"
-          >
-            {title}
+    <section id={id} className={cn("scroll-mt-24 border-t border-border", className)}>
+      <div className="mx-auto grid max-w-6xl gap-14 px-4 py-24 sm:px-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:gap-16 lg:px-8 lg:py-32">
+        <div className="min-w-0">
+          <p className="font-mono text-[11px] tracking-[0.22em] text-muted-foreground uppercase">How it works</p>
+          <h2 className="mt-4 max-w-lg font-display text-4xl tracking-[-0.03em] text-balance sm:text-5xl">
+            From a prompt to an import.
           </h2>
-          <p className="mt-4 text-base leading-7 text-slate-600 sm:text-lg">
-            {description}
-          </p>
-        </div>
-        <ol className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">
-          {steps.map((step) => (
-            <li
-              key={step.label}
-              className="flex min-w-0 flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-            >
-              <div className="flex items-start gap-4">
-                <span
-                  aria-hidden="true"
-                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-950 font-mono text-sm font-semibold text-white"
-                >
-                  {step.label}
+          <ol className="mt-10">
+            {steps.map((step) => (
+              <li key={step.index} className="relative grid gap-3 border-l border-border py-6 pl-8 sm:grid-cols-[minmax(0,1fr)_minmax(0,16rem)] sm:items-start">
+                <span className="absolute top-7 -left-3 grid size-6 place-items-center rounded-full border border-border bg-background font-mono text-[10px] text-muted-foreground">
+                  {step.index}
                 </span>
-                <h3 className="pt-1.5 text-base font-semibold leading-6 tracking-tight text-slate-950">
-                  {step.title}
-                </h3>
-              </div>
-              <p className="mt-4 flex-1 text-sm leading-6 text-slate-600">
-                {step.body}
-              </p>
-              <p className="mt-5 text-xs font-medium uppercase tracking-wide text-slate-600">
-                {step.note}
-              </p>
-              <pre className="mt-2 overflow-x-auto rounded-lg bg-slate-950 px-3 py-3 font-mono text-xs leading-5 text-emerald-100">
-                <code>{step.code}</code>
-              </pre>
-            </li>
-          ))}
-        </ol>
+                <div className="min-w-0">
+                  <h3 className="text-base font-medium tracking-tight">{step.title}</h3>
+                  <p className="mt-1.5 text-sm leading-6 text-muted-foreground">{step.body}</p>
+                </div>
+                <pre className="min-w-0 overflow-x-auto rounded-lg border border-border bg-card px-3 py-2 font-mono text-xs leading-5 whitespace-pre-wrap text-foreground">
+                  <code>{step.code}</code>
+                </pre>
+              </li>
+            ))}
+          </ol>
+        </div>
+        <aside className="h-fit rounded-2xl border border-border bg-card p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] lg:sticky lg:top-24">
+          <p className="font-mono text-[11px] tracking-[0.18em] text-accent uppercase">MCP</p>
+          <h3 className="mt-3 font-display text-3xl tracking-tight">Same pipeline, from an agent.</h3>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            <code className="font-mono text-foreground">ui-gen-mcp</code> speaks stdio. It does not generate on its own.
+          </p>
+          <ul className="mt-6 divide-y divide-border border-y border-border">
+            {tools.map((tool) => (
+              <li key={tool.name} className="flex items-center justify-between gap-3 py-2.5">
+                <span className="min-w-0 truncate font-mono text-xs">{tool.name}</span>
+                <span className="shrink-0 font-mono text-[10px] tracking-wide text-muted-foreground uppercase">{tool.kind}</span>
+              </li>
+            ))}
+          </ul>
+          <pre className="mt-6 overflow-x-auto rounded-lg bg-background p-4 font-mono text-xs leading-6 text-muted-foreground">
+            <code>
+              {`{
+  "mcpServers": {
+    "ui-gen": {
+      "command": "ui-gen-mcp"
+    }
+  }
+}`}
+            </code>
+          </pre>
+        </aside>
       </div>
     </section>
-  );
+  )
 }

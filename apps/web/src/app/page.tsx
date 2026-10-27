@@ -16,24 +16,14 @@ export default function HomePage() {
   return (
     <>
       <Navbar links={navLinks} ctaHref="#get-started" />
-      <main id="content" tabIndex={-1} className="focus:outline-none">
-        <Hero installHref="#get-started" seeHowHref="#how-it-works" />
-        <div id="features" className="scroll-mt-20">
-          <FeatureGrid />
-        </div>
-        <HowItWorks id="how-it-works" className="scroll-mt-20" />
+      <main id="content" tabIndex={-1} className="outline-none">
+        <Hero />
+        <FeatureGrid />
+        <HowItWorks />
         <CodePreview />
-        <div id="get-started" className="scroll-mt-20">
-          <CtaBanner supportingText="ui-gen is MIT and maintained by Régis KIKI. The CLI and MCP server are free to run from this repository. Generate calls are billed by your model provider." />
-        </div>
+        <CtaBanner supportingText="ui-gen is MIT and maintained by Régis KIKI. The CLI and MCP server are free to run from this repository. Generate calls are billed by your model provider." />
       </main>
-      <Footer
-        blurb="Generate a React, TypeScript, and Tailwind component and copy the file into your project."
-        docsHref="#demo"
-        cliHref="#how-it-works"
-        mcpHref="#how-it-works"
-        licenseHref="#get-started"
-      />
+      <Footer />
     </>
   )
 }

@@ -1,305 +1,193 @@
 "use client"
 
+import { useState } from "react"
 import { Check, Copy } from "lucide-react"
-import { useEffect, useState, type KeyboardEvent } from "react"
 import { cn } from "@/lib/utils"
 
-const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-zinc-950"
-
-const pricingCardSource = `export interface PricingCardProps {
-  tiers: Array<{
-    name: string
-    price: string
-    summary: string
-    features: string[]
-    cta: string
-    featured?: boolean
-  }>
+export interface CodePreviewProps {
+  prompt?: string
+  code?: string
+  className?: string
 }
-
-export function PricingCard({ tiers }: PricingCardProps) {
-  return (
-    <div className="grid gap-4 md:grid-cols-3">
-      {tiers.map((tier) => (
-        <article
-          key={tier.name}
-          className={
-            tier.featured
-              ? "flex flex-col gap-4 rounded-2xl border border-neutral-900 bg-neutral-900 p-5 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-950"
-              : "flex flex-col gap-4 rounded-2xl border border-neutral-200 bg-white p-5 text-neutral-900 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-50"
-          }
-        >
-          <header>
-            <h3 className="text-sm font-medium opacity-80">{tier.name}</h3>
-            <p className="mt-2 text-3xl font-semibold tracking-tight">{tier.price}</p>
-          </header>
-          <p className="text-sm leading-6 opacity-90">{tier.summary}</p>
-          <ul className="flex list-disc flex-col gap-2 pl-4 text-sm leading-6">
-            {tier.features.map((feature) => (
-              <li key={feature}>{feature}</li>
-            ))}
-          </ul>
-          <button
-            type="button"
-            className={
-              tier.featured
-                ? "mt-auto inline-flex h-10 items-center justify-center rounded-full bg-white px-4 text-sm font-medium text-neutral-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 dark:bg-neutral-950 dark:text-white dark:focus-visible:ring-neutral-950 dark:focus-visible:ring-offset-neutral-100"
-                : "mt-auto inline-flex h-10 items-center justify-center rounded-full bg-neutral-900 px-4 text-sm font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:bg-neutral-100 dark:text-neutral-950 dark:focus-visible:ring-neutral-100 dark:focus-visible:ring-offset-neutral-950"
-            }
-          >
-            {tier.cta}
-          </button>
-        </article>
-      ))}
-    </div>
-  )
-}`
 
 interface Tier {
   name: string
   price: string
-  summary: string
+  description: string
   features: string[]
-  cta: string
   featured?: boolean
 }
 
-const sampleTiers: Tier[] = [
+const tiers: Tier[] = [
   {
     name: "Solo",
     price: "$0",
-    summary: "A single workspace for trying the interface.",
+    description: "A single workspace for trying the interface.",
     features: ["One project", "Local preview"],
-    cta: "Choose Solo",
   },
   {
     name: "Studio",
     price: "$29",
-    summary: "Shared components for a small team.",
+    description: "Shared components for a small team.",
     features: ["Shared files", "Review notes"],
-    cta: "Choose Studio",
     featured: true,
   },
   {
     name: "Org",
     price: "$99",
-    summary: "A wider review workflow.",
+    description: "A wider review workflow.",
     features: ["More seats", "Audit history"],
-    cta: "Choose Org",
   },
 ]
 
-interface Panel {
-  label: string
-  path: string
-  code: string
-  note: string
+const defaultCode = `export function PricingCard() {
+  return (
+    <article className="rounded-2xl border p-6">
+      <h2>Pro</h2>
+      <p className="text-4xl">$29</p>
+      <p>Shared components for a small team.</p>
+    </article>
+  )
 }
+`
 
-const panels: Panel[] = [
-  {
-    label: "Prompt",
-    path: "ui-gen generate",
-    code: 'pricing card with three tiers and a primary CTA',
-    note: "This is the text passed to generate. The model is asked for JSON with name, description, and code.",
-  },
-  {
-    label: "File",
-    path: "src/components/ui/pricing-card.tsx",
-    code: pricingCardSource,
-    note: "A successful generate writes this file and appends an export to index.ts in the same directory.",
-  },
-  {
-    label: "Import",
-    path: "the page that renders it",
-    code: 'import { PricingCard } from "@/components/ui/pricing-card";',
-    note: "ui-gen prints this line when the alias recorded at init maps @/* onto ./src/*.",
-  },
+type Tab = "prompt" | "code" | "import"
+
+const tabs: { id: Tab; label: string }[] = [
+  { id: "prompt", label: "Prompt" },
+  { id: "code", label: "File" },
+  { id: "import", label: "Import" },
 ]
 
-export interface CodePreviewProps {
-  className?: string
-}
+export function CodePreview({
+  prompt = "pricing card with three tiers and a primary CTA",
+  code = defaultCode,
+  className,
+}: CodePreviewProps) {
+  const [activeTab, setActiveTab] = useState<Tab>("prompt")
+  const [isCopied, setIsCopied] = useState(false)
 
-export function CodePreview({ className }: CodePreviewProps) {
-  const [activeIndex, setActiveIndex] = useState(0)
-  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle")
-  const active = panels[activeIndex] ?? panels[0]
-
-  useEffect(() => {
-    if (copyState === "idle") return
-    const timeout = window.setTimeout(() => setCopyState("idle"), 2000)
-    return () => window.clearTimeout(timeout)
-  }, [copyState])
-
-  const handleSelectTab = (index: number) => {
-    setActiveIndex(index)
-    setCopyState("idle")
-  }
-
-  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
-    const last = panels.length - 1
-    let next = index
-    if (event.key === "ArrowRight") next = index === last ? 0 : index + 1
-    else if (event.key === "ArrowLeft") next = index === 0 ? last : index - 1
-    else if (event.key === "Home") next = 0
-    else if (event.key === "End") next = last
-    else return
-    event.preventDefault()
-    handleSelectTab(next)
-    document.getElementById(`code-tab-${next}`)?.focus()
-  }
+  const importLine = `import { PricingCard } from "@/components/ui/pricing-card"`
+  const activeText = activeTab === "prompt" ? prompt : activeTab === "code" ? code : importLine
 
   const handleCopy = async () => {
-    if (!active) return
     try {
-      if (!navigator.clipboard) {
-        setCopyState("failed")
-        return
-      }
-      await navigator.clipboard.writeText(active.code)
-      setCopyState("copied")
+      await navigator.clipboard.writeText(activeText)
+      setIsCopied(true)
+      window.setTimeout(() => setIsCopied(false), 2000)
     } catch {
-      setCopyState("failed")
+      setIsCopied(false)
     }
   }
 
-  const copyLabel =
-    copyState === "copied" ? "Copied" : copyState === "failed" ? "Copy unavailable" : "Copy"
-
   return (
-    <section
-      id="demo"
-      aria-labelledby="demo-title"
-      className={cn("scroll-mt-20 bg-white text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50", className)}
-    >
-      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+    <section id="demo" className={cn("scroll-mt-24 border-t border-border", className)}>
+      <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
         <div className="max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-widest text-violet-700 dark:text-violet-300">
-            Demo
-          </p>
-          <h2 id="demo-title" className="mt-3 text-3xl font-semibold tracking-tight text-zinc-950 sm:text-4xl dark:text-white">
+          <p className="font-mono text-[11px] tracking-[0.22em] text-muted-foreground uppercase">Demo</p>
+          <h2 className="mt-4 font-display text-4xl tracking-[-0.03em] text-balance sm:text-5xl">
             The file for that prompt.
           </h2>
-          <p className="mt-4 text-base leading-7 text-zinc-600 dark:text-zinc-300">
-            Sample output for a pricing card. These prices are part of the example component. They
-            are not what ui-gen charges. The tool is MIT, and generate calls are billed by your
-            model provider.
+          <p className="mt-4 max-w-xl text-base leading-7 text-muted-foreground">
+            Sample output for a pricing card. These prices are part of the example. They are not ui-gen charges. The tool is MIT, and generate calls are billed by your model provider.
           </p>
         </div>
-        <div className="mt-12 space-y-6">
-          <PricingPreview tiers={sampleTiers} />
-          <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-            <div className="flex flex-col gap-3 border-b border-zinc-200 px-3 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-zinc-800">
-              <div role="tablist" aria-label="Generated file views" className="flex flex-wrap gap-1">
-                {panels.map((panel, index) => {
-                  const isSelected = index === activeIndex
-                  return (
-                    <button
-                      key={panel.label}
-                      id={`code-tab-${index}`}
-                      type="button"
-                      role="tab"
-                      aria-selected={isSelected}
-                      aria-controls="code-panel"
-                      tabIndex={isSelected ? 0 : -1}
-                      className={cn(
-                        "h-9 rounded-lg px-3 text-sm font-medium",
-                        isSelected
-                          ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950"
-                          : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800",
-                        focusRing,
-                      )}
-                      onClick={() => handleSelectTab(index)}
-                      onKeyDown={(event) => handleTabKeyDown(event, index)}
-                    >
-                      {panel.label}
-                    </button>
-                  )
-                })}
-              </div>
-              <button
-                type="button"
+
+        <div className="mt-14 overflow-hidden rounded-2xl border border-border bg-[#f3efe4] text-[#1c1a16] shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]">
+          <div className="flex items-center justify-between gap-3 border-b border-[#ddd6c6] px-4 py-3 sm:px-5">
+            <p className="font-mono text-[11px] tracking-[0.16em] text-[#6d675c] uppercase">Example render</p>
+            <p className="font-mono text-[11px] text-[#6d675c]">pricing-card.tsx</p>
+          </div>
+          <div className="grid gap-3 p-4 sm:p-5 lg:grid-cols-3">
+            {tiers.map((tier) => (
+              <article
+                key={tier.name}
                 className={cn(
-                  "inline-flex h-9 items-center justify-center gap-2 self-start rounded-lg border border-zinc-200 px-3 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800",
-                  focusRing,
+                  "flex flex-col rounded-xl border p-5",
+                  tier.featured
+                    ? "border-[#17160f] bg-[#17160f] text-[#f4f1ea]"
+                    : "border-[#ddd6c6] bg-[#faf8f3] text-[#1c1a16]",
                 )}
-                onClick={handleCopy}
               >
-                {copyState === "copied" ? (
-                  <Check aria-hidden="true" className="size-4" />
-                ) : (
-                  <Copy aria-hidden="true" className="size-4" />
-                )}
-                <span aria-live="polite">{copyLabel}</span>
-              </button>
-            </div>
-            {active ? (
-              <div role="tabpanel" id="code-panel" aria-labelledby={`code-tab-${activeIndex}`}>
-                <p className="border-b border-zinc-200 px-4 py-2 font-mono text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
-                  {active.path}
+                <h3 className="text-sm font-medium">{tier.name}</h3>
+                <p className="mt-2 font-display text-4xl tracking-tight">{tier.price}</p>
+                <p className={cn("mt-2 text-sm leading-5", tier.featured ? "text-[#c8c2b6]" : "text-[#5c564c]")}>
+                  {tier.description}
                 </p>
-                <pre
-                  tabIndex={0}
-                  aria-label={`${active.label} contents`}
-                  className="max-h-[32rem] overflow-auto bg-zinc-950 p-4 font-mono text-[13px] leading-6 text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-violet-400"
+                <ul className="mt-4 space-y-1.5 text-sm">
+                  {tier.features.map((feature) => (
+                    <li key={feature} className="flex gap-2">
+                      <span aria-hidden="true" className={tier.featured ? "text-accent" : "text-[#1b473b]"}>
+                        ·
+                      </span>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  type="button"
+                  className={cn(
+                    "mt-6 inline-flex h-10 items-center justify-center rounded-lg px-3 text-sm font-medium",
+                    tier.featured
+                      ? "bg-[#f4f1ea] text-[#17160f]"
+                      : "bg-[#17160f] text-[#f4f1ea]",
+                  )}
                 >
-                  <code>{active.code}</code>
-                </pre>
-                <p className="border-t border-zinc-200 px-4 py-3 text-sm leading-6 text-zinc-600 dark:border-zinc-800 dark:text-zinc-300">
-                  {active.note}
-                </p>
-              </div>
-            ) : null}
+                  Choose {tier.name}
+                </button>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-3 overflow-hidden rounded-2xl border border-border bg-card">
+          <div className="flex flex-col gap-3 border-b border-border px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+            <div role="group" aria-label="Generated file" className="flex gap-1">
+              {tabs.map((tab) => {
+                const isSelected = activeTab === tab.id
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    aria-pressed={isSelected}
+                    onClick={() => {
+                      setActiveTab(tab.id)
+                      setIsCopied(false)
+                    }}
+                    className={cn(
+                      "rounded-md px-3 py-1.5 text-sm transition-colors",
+                      isSelected ? "bg-foreground text-background" : "text-muted-foreground hover:bg-white/5 hover:text-foreground",
+                    )}
+                  >
+                    {tab.label}
+                  </button>
+                )
+              })}
+            </div>
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="inline-flex h-9 items-center gap-2 self-start rounded-lg border border-border px-3 text-sm text-muted-foreground transition-colors hover:text-foreground sm:self-auto"
+              aria-label={isCopied ? "Copied" : "Copy current panel"}
+            >
+              {isCopied ? <Check aria-hidden="true" className="size-3.5" /> : <Copy aria-hidden="true" className="size-3.5" />}
+              {isCopied ? "Copied" : "Copy"}
+            </button>
+          </div>
+          <div className="min-w-0">
+            <pre className="max-h-80 overflow-auto p-4 font-mono text-[13px] leading-6 whitespace-pre-wrap sm:p-5">
+              <code>{activeText}</code>
+            </pre>
+            <p className="border-t border-border px-4 py-3 text-xs leading-5 text-muted-foreground sm:px-5">
+              {activeTab === "prompt"
+                ? "This is the text passed to generate. The model is asked for JSON with name, description, and code."
+                : activeTab === "code"
+                  ? "The CLI writes this into the components directory and exports the named function from index.ts."
+                  : "The alias comes from tsconfig or components.json. It is not hard-coded to @/."}
+            </p>
           </div>
         </div>
       </div>
     </section>
-  )
-}
-
-interface PricingPreviewProps {
-  tiers: Tier[]
-}
-
-function PricingPreview({ tiers }: PricingPreviewProps) {
-  return (
-    <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-3 sm:p-4 dark:border-zinc-800 dark:bg-zinc-900">
-      <p className="px-1 pb-3 font-mono text-xs text-zinc-500 dark:text-zinc-400">Example render</p>
-      <div className="grid gap-4 md:grid-cols-3">
-        {tiers.map((tier) => (
-          <article
-            key={tier.name}
-            className={
-              tier.featured
-                ? "flex flex-col gap-4 rounded-2xl border border-neutral-900 bg-neutral-900 p-5 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-950"
-                : "flex flex-col gap-4 rounded-2xl border border-neutral-200 bg-white p-5 text-neutral-900 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-50"
-            }
-          >
-            <header>
-              <h3 className="text-sm font-medium opacity-80">{tier.name}</h3>
-              <p className="mt-2 text-3xl font-semibold tracking-tight">{tier.price}</p>
-            </header>
-            <p className="text-sm leading-6 opacity-90">{tier.summary}</p>
-            <ul className="flex list-disc flex-col gap-2 pl-4 text-sm leading-6">
-              {tier.features.map((feature) => (
-                <li key={feature}>{feature}</li>
-              ))}
-            </ul>
-            <button
-              type="button"
-              className={
-                tier.featured
-                  ? "mt-auto inline-flex h-10 items-center justify-center rounded-full bg-white px-4 text-sm font-medium text-neutral-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 dark:bg-neutral-950 dark:text-white dark:focus-visible:ring-neutral-950 dark:focus-visible:ring-offset-neutral-100"
-                  : "mt-auto inline-flex h-10 items-center justify-center rounded-full bg-neutral-900 px-4 text-sm font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:bg-neutral-100 dark:text-neutral-950 dark:focus-visible:ring-neutral-100 dark:focus-visible:ring-offset-neutral-950"
-              }
-            >
-              {tier.cta}
-            </button>
-          </article>
-        ))}
-      </div>
-    </div>
   )
 }

@@ -1,24 +1,28 @@
-import type { ButtonHTMLAttributes } from "react";
+import type { ReactNode } from "react"
+import { cn } from "@/lib/utils"
 
-export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
-  label: string;
+export interface ButtonProps {
+  href: string
+  children: ReactNode
+  variant?: "primary" | "secondary"
+  className?: string
+  onClick?: () => void
 }
 
-export function Button({
-  label,
-  type = "button",
-  className = "",
-  disabled = false,
-  ...rest
-}: ButtonProps) {
+export function Button({ href, children, variant = "primary", className, onClick }: ButtonProps) {
   return (
-    <button
-      type={type}
-      disabled={disabled}
-      className={`inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-blue-400 ${className}`.trim()}
-      {...rest}
+    <a
+      href={href}
+      onClick={onClick}
+      className={cn(
+        "inline-flex h-11 items-center justify-center rounded-lg px-4 text-sm font-medium transition-colors duration-200",
+        variant === "primary"
+          ? "bg-accent text-accent-foreground hover:bg-accent/90"
+          : "border border-border bg-white/[0.03] text-foreground hover:bg-white/[0.07]",
+        className,
+      )}
     >
-      {label}
-    </button>
-  );
+      {children}
+    </a>
+  )
 }

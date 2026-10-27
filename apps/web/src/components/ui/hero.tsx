@@ -1,86 +1,128 @@
-"use client"
+import type { ReactNode } from "react"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 export interface HeroProps {
-  installHref?: string;
-  seeHowHref?: string;
-  onInstall?: () => void;
-  onSeeHow?: () => void;
+  installHref?: string
+  seeHowHref?: string
+  className?: string
+}
+
+interface TokenProps {
+  children: ReactNode
+  tone?: "plain" | "key" | "name" | "string" | "tag" | "comment"
+}
+
+function Token({ children, tone = "plain" }: TokenProps) {
+  const toneClass = {
+    plain: "text-foreground",
+    key: "text-[#9dba8a]",
+    name: "text-[#f4f1ea]",
+    string: "text-[#e7c99a]",
+    tag: "text-[#8eb8c4]",
+    comment: "text-muted-foreground",
+  }[tone]
+  return <span className={toneClass}>{children}</span>
 }
 
 export function Hero({
-  installHref = "#install",
-  seeHowHref = "#how-it-works",
-  onInstall,
-  onSeeHow,
+  installHref = "#how-it-works",
+  seeHowHref = "#demo",
+  className,
 }: HeroProps) {
-  const sampleSource = [
-    "export function PricingCard() {",
-    "  return (",
-    '    <article className="rounded-2xl border p-6">',
-    "      <h2>Pro</h2>",
-    "      <p>Ship faster with generated UI.</p>",
-    "    </article>",
-    "  )",
-    "}",
-  ].join("\n");
-
   return (
-    <section
-      aria-labelledby="ui-gen-hero-heading"
-      className="relative overflow-hidden bg-slate-950 text-white"
-    >
+    <section className={cn("relative overflow-hidden", className)}>
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-600/25 via-slate-950 to-fuchsia-600/15"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(244,241,234,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(244,241,234,0.045)_1px,transparent_1px)] bg-[size:72px_72px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_72%)]"
       />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-indigo-500/20 blur-3xl"
-      />
-      <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-28">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-300">
-            ui-gen
+      <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-16 lg:px-8 lg:py-24">
+        <div className="rise min-w-0">
+          <p className="font-mono text-[11px] tracking-[0.22em] text-muted-foreground uppercase">
+            CLI · MCP · MIT
           </p>
-          <h1
-            id="ui-gen-hero-heading"
-            className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl"
-          >
-            Generate React UI components with AI
+          <h1 className="mt-5 font-display text-[clamp(3.1rem,7.2vw,5.6rem)] leading-[0.92] tracking-[-0.035em] text-balance">
+            Generate it.
+            <span className="mt-1 block italic text-[#e7d7b8]">Keep the file.</span>
           </h1>
-          <p className="mt-6 max-w-xl text-base leading-7 text-slate-300 sm:text-lg">
-            Describe a component. Get TypeScript Tailwind source copied into your project via CLI or MCP.
+          <p className="mt-6 max-w-md text-base leading-7 text-muted-foreground">
+            ui-gen writes a React, TypeScript, and Tailwind component from a prompt and copies it into your repository. The CLI and the MCP server share one pipeline.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <a
-              href={installHref}
-              onClick={onInstall}
-              className="inline-flex items-center justify-center rounded-lg bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
-            >
-              Install the CLI
-            </a>
-            <a
-              href={seeHowHref}
-              onClick={onSeeHow}
-              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
-            >
-              See how it works
-            </a>
+            <Button href={installHref}>How it works</Button>
+            <Button href={seeHowHref} variant="secondary">
+              See the file
+            </Button>
           </div>
+          <dl className="mt-8 grid max-w-md grid-cols-3 gap-3 border-t border-border pt-5">
+            <div>
+              <dt className="font-mono text-[10px] tracking-[0.16em] text-muted-foreground uppercase">Output</dt>
+              <dd className="mt-1 text-sm">Named export</dd>
+            </div>
+            <div>
+              <dt className="font-mono text-[10px] tracking-[0.16em] text-muted-foreground uppercase">Import</dt>
+              <dd className="mt-1 text-sm">Your alias</dd>
+            </div>
+            <div>
+              <dt className="font-mono text-[10px] tracking-[0.16em] text-muted-foreground uppercase">License</dt>
+              <dd className="mt-1 text-sm">MIT</dd>
+            </div>
+          </dl>
         </div>
-        <aside
-          aria-label="Generated TypeScript Tailwind source"
-          className="rounded-2xl border border-white/10 bg-slate-900/80 p-4 shadow-2xl shadow-indigo-950/40 backdrop-blur sm:p-6"
-        >
-          <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
-            <p className="font-mono text-xs text-slate-400">PricingCard.tsx</p>
-            <p className="text-xs font-medium text-emerald-300">Copied via CLI</p>
+        <figure className="rise rise-delay min-w-0 overflow-hidden rounded-2xl border border-border bg-card shadow-[0_40px_90px_-48px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(255,255,255,0.05)]">
+          <figcaption className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
+            <span className="min-w-0 truncate font-mono text-xs text-muted-foreground">
+              src/components/ui/pricing-card.tsx
+            </span>
+            <span className="inline-flex shrink-0 items-center gap-1.5 font-mono text-[11px] text-accent">
+              <span aria-hidden="true" className="size-1.5 rounded-full bg-accent" />
+              Written
+            </span>
+          </figcaption>
+          <div className="grid min-w-0 lg:grid-cols-[minmax(0,1.2fr)_12.5rem]">
+            <pre className="min-w-0 overflow-x-auto border-b border-border p-4 font-mono text-[12.5px] leading-6 lg:border-r lg:border-b-0">
+              <code>
+                <Token tone="key">export function </Token>
+                <Token>PricingCard</Token>
+                <Token>() {"{"}</Token>
+                {"\n  "}
+                <Token tone="key">return</Token>
+                <Token> (</Token>
+                {"\n    "}
+                <Token tone="tag">&lt;article&gt;</Token>
+                {"\n      "}
+                <Token tone="tag">&lt;h2&gt;</Token>
+                <Token>Pro</Token>
+                <Token tone="tag">&lt;/h2&gt;</Token>
+                {"\n      "}
+                <Token tone="tag">&lt;p&gt;</Token>
+                <Token>$29</Token>
+                <Token tone="tag">&lt;/p&gt;</Token>
+                {"\n    "}
+                <Token tone="tag">&lt;/article&gt;</Token>
+                {"\n  "}
+                <Token>)</Token>
+                {"\n"}
+                <Token>{"}"}</Token>
+              </code>
+            </pre>
+            <div className="bg-[#f3efe4] p-4 text-[#1c1a16] sm:p-5">
+              <p className="font-mono text-[10px] tracking-[0.16em] text-[#6d675c] uppercase">Sample render</p>
+              <article className="mt-3 rounded-xl border border-[#ddd6c6] bg-[#faf8f3] p-4 shadow-[0_12px_30px_-20px_rgba(28,26,22,0.45)]">
+                <h2 className="text-sm font-medium">Pro</h2>
+                <p className="mt-1 font-display text-4xl tracking-tight">$29</p>
+                <p className="mt-2 text-sm leading-5 text-[#5c564c]">For a small team.</p>
+                <span className="mt-4 inline-flex h-9 items-center rounded-lg bg-[#17160f] px-3 text-xs text-[#f4f1ea]">
+                  Use this plan
+                </span>
+              </article>
+            </div>
           </div>
-          <pre className="mt-4 overflow-x-auto font-mono text-xs leading-6 text-indigo-100 sm:text-sm">
-            <code>{sampleSource}</code>
-          </pre>
-        </aside>
+          <div className="border-t border-border px-4 py-3 font-mono text-xs leading-5 break-words text-muted-foreground">
+            <span className="text-accent">$</span> ui-gen generate &quot;pricing card with three tiers&quot;
+          </div>
+        </figure>
       </div>
     </section>
-  );
+  )
 }
