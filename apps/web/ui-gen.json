@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "tsx": true,
+  "rsc": true,
+  "framework": "next",
+  "componentsDir": "src/components/ui",
+  "aliases": {
+    "components": "@/components",
+    "ui": "@/components/ui",
+    "utils": "@/lib/utils",
+    "lib": "@/lib"
+  },
+  "tailwind": {
+    "css": "src/app/globals.css"
+  },
+  "provider": {
+    "baseUrl": "https://api.x.ai/v1",
+    "model": "grok-4.7"
+  },
+  "paths": {
+    "aliasPrefix": "@",
+    "aliasBase": "src"
+  }
+}

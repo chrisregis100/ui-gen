@@ -192,10 +192,33 @@ The server logs to stderr. stdout is the MCP protocol.
 ## Project layout
 
 ```text
+apps/web        Next.js landing (src/components/ui)
 packages/core   generation, config, and file writes
 packages/cli    ui-gen binary
 packages/mcp    ui-gen-mcp binary
 ```
+
+## Landing
+
+`apps/web` is a Next.js App Router site. The page is composed from components in `apps/web/src/components/ui`. `apps/web/ui-gen.json` sets `componentsDir` to that folder.
+
+```bash
+pnpm install
+pnpm --filter web dev
+```
+
+The dev server binds `0.0.0.0` and port `${PORT:-3000}`. Open `http://localhost:3000`.
+
+`pnpm build` compiles the packages and the landing. To build only the site, run `pnpm --filter web build`.
+
+The sections in git were written as source. To regenerate them with the CLI once a model key is available:
+
+```bash
+pnpm build
+pnpm --filter web gen:ui
+```
+
+`gen:ui` runs `ui-gen generate --overwrite` for Navbar, Hero, FeatureGrid, HowItWorks, CodePreview, CtaBanner, and Footer. Put `XAI_API_KEY`, `GROK_API_KEY`, or `OPENAI_API_KEY` in the environment or in `apps/web/.env`. With no key, generate exits `missing_api_key` and does not call the network.
 
 `ui-gen.json` looks like this:
 
@@ -234,7 +257,7 @@ pnpm build
 pnpm test
 ```
 
-`pnpm test` runs Vitest against the TypeScript source. It does not call a live model. Generate tests inject a fake provider. A missing API key is covered by a unit test.
+`pnpm build` compiles `@ui-gen/core`, `@ui-gen/cli`, `@ui-gen/mcp`, and the landing in `apps/web`. `pnpm test` runs Vitest against the TypeScript source. It does not call a live model. Generate tests inject a fake provider. A missing API key is covered by a unit test.
 
 ## License
 

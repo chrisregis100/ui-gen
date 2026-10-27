@@ -13,7 +13,7 @@
     "onlyBuiltDependencies": ["esbuild"]
   },
   "scripts": {
-    "build": "pnpm --filter @ui-gen/core build && pnpm --filter @ui-gen/cli --filter @ui-gen/mcp build",
+    "build": "pnpm --filter @ui-gen/core build && pnpm --filter @ui-gen/cli --filter @ui-gen/mcp build && pnpm --filter web build",
     "test": "vitest run",
     "typecheck": "pnpm build",
     "ui-gen": "node packages/cli/dist/index.js",
