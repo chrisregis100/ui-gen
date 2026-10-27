@@ -1,0 +1,25 @@
+{
+  "name": "@ui-gen/cli",
+  "version": "0.1.0",
+  "description": "CLI that generates React, TypeScript, and Tailwind components into your project.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "ui-gen": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@ui-gen/core": "workspace:*",
+    "commander": "^14.0.0",
+    "picocolors": "^1.1.1"
+  }
+}
